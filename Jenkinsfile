@@ -14,7 +14,7 @@ node {
     def gitBranch = myRepo.GIT_BRANCH.replace("origin/","")
 
     def project = 'raphaelfp'
-    def appName = 'nodetest'
+    def appName = 'pod-template'
     def imageName = "${project}/${appName}:${gitBranch}.${env.BUILD_NUMBER}"
 
 
