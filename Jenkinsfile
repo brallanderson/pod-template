@@ -1,67 +1,76 @@
-node {
+def label = "jenkins-agent-${UUID.randomUUID().toString()}"
 
-    def myRepo = checkout scm
-    def gitCommit = myRepo.GIT_COMMIT
-    def gitBranch = myRepo.GIT_BRANCH.replace("origin/","")
+podTemplate(label: label, containers: [
+    containerTemplate(name: 'docker', image: 'docker', command: 'cat', ttyEnabled: true),
+    containerTemplate(name: 'kubectl', image: 'raphaelfp/jnlp-slave:lts', command: 'cat', ttyEnabled: true)
+],
+volumes: [
+    hostPathVolume(mountPath: '/usr/bin/docker', hostPath: '/usr/bin/docker'),
+    hostPathVolume(mountPath: '/var/run/docker.sock', hostPath: '/var/run/docker.sock')
+]) {
+    node(label) {
+        def myRepo = checkout scm
+        def gitCommit = myRepo.GIT_COMMIT
+        def gitBranch = myRepo.GIT_BRANCH.replace("origin/","")
 
-    def project = 'raphaelfp'
-    def appName = 'pod-template'
-    def svcPort = 3000
-    def imageName = "${project}/${appName}:${gitBranch}.${env.BUILD_NUMBER}"
+        def project = 'raphaelfp'
+        def appName = 'pod-template'
+        def svcPort = 3000
+        def imageName = "${project}/${appName}:${gitBranch}.${env.BUILD_NUMBER}"
 
 
 
-    stage('Build image') {
+        stage('Build image') {
+            container('docker') {
+                echo "Building docker image \"${imageName}\""
+                sh "docker build -t ${imageName} ."
+            }
+        }
 
-        //echo sh(returnStdout: true, script: 'env')
+        stage('Test build') {
+            container('docker') {
+                echo "Testing image \"${imageName}\""
+                sh "docker run ${imageName} npm test"
+            }
+        }
 
-        echo "Validating kubectl"
-        sh "kubectl cluster-info"
-        
-        echo "Building docker image \"${imageName}\""
+        stage('Push image to registry') {
+            container('docker') {
+                echo "Testing image \"${imageName}\""
+                sh "docker login -u raphaelfp -p ${DOCKER_HUB_PASS}"
+                sh "docker push ${imageName}"
+            }
+        }
 
-        sh "docker build -t ${imageName} ."
-    }
+        stage('Deploy application') {
+            container('docker') {
+                echo "Deploying application"
+                switch (gitBranch) {
+                    case "staging":
+                        sh("sed -i.bak 's#${project}/${appName}#${imageName}#' k8s/staging/*.yaml")
+                        sh("kubectl --namespace=staging apply -f k8s/services/")
+                        sh("kubectl --namespace=staging apply -f k8s/staging/")
+                        sh("echo http://`kubectl --namespace=production get service/${appName} --output=json | jq -r '.status.loadBalancer.ingress[0].ip'`:${svcPort} > ${appName}")
+                        break
 
-    stage('Test build') {
-        echo "Testing image \"${imageName}\""
+                    case "master":
+                        sh("sed -i.bak 's#${project}/${appName}#${imageName}#' k8s/production/*.yaml")
+                        sh("kubectl --namespace=production apply -f k8s/services/")
+                        sh("kubectl --namespace=production apply -f k8s/production/")
+                        sh("echo http://`kubectl --namespace=production get service/${appName} --output=json | jq -r '.status.loadBalancer.ingress[0].ip'`:${svcPort} > ${appName}")
+                        break
 
-        sh "docker run ${imageName} npm test"
-    }
-
-    stage('Push image to registry') {
-        echo "Testing image \"${imageName}\""
-
-        sh "docker login -u raphaelfp -p ${DOCKER_HUB_PASS}"
-        sh "docker push ${imageName}"
-    }
-
-    stage('Deploy application') {
-        echo "Deploying application"
-        switch (gitBranch) {
-            case "staging":
-                sh("sed -i.bak 's#${project}/${appName}#${imageName}#' k8s/staging/*.yaml")
-                sh("kubectl --namespace=staging apply -f k8s/services/")
-                sh("kubectl --namespace=staging apply -f k8s/staging/")
-                sh("echo http://`kubectl --namespace=production get service/${appName} --output=json | jq -r '.status.loadBalancer.ingress[0].ip'`:${svcPort} > ${appName}")
-                break
-
-            case "master":
-                sh("sed -i.bak 's#${project}/${appName}#${imageName}#' k8s/production/*.yaml")
-                sh("kubectl --namespace=production apply -f k8s/services/")
-                sh("kubectl --namespace=production apply -f k8s/production/")
-                sh("echo http://`kubectl --namespace=production get service/${appName} --output=json | jq -r '.status.loadBalancer.ingress[0].ip'`:${svcPort} > ${appName}")
-                break
-
-            default:
-                sh("kubectl get ns ${gitBranch} || kubectl create ns ${gitBranch}")
-                // Don't use public load balancing for development branches
-                sh("sed -i.bak 's#${project}/${appName}#${imageName}#' k8s/dev/*.yaml")
-                sh("kubectl --namespace=${gitBranch} apply -f k8s/services/")
-                sh("kubectl --namespace=${gitBranch} apply -f k8s/dev/")
-                // echo 'To access your environment run `kubectl proxy`'
-                // echo "Then access your service via http://localhost:8001/api/v1/proxy/namespaces/${gitBranch}/services/${appName}:80/"
-                sh("echo http://`kubectl --namespace=production get service/${appName} --output=json | jq -r '.status.loadBalancer.ingress[0].ip'`:${svcPort} > ${appName}")
+                    default:
+                        sh("kubectl get ns ${gitBranch} || kubectl create ns ${gitBranch}")
+                        // Don't use public load balancing for development branches
+                        sh("sed -i.bak 's#${project}/${appName}#${imageName}#' k8s/dev/*.yaml")
+                        sh("kubectl --namespace=${gitBranch} apply -f k8s/services/")
+                        sh("kubectl --namespace=${gitBranch} apply -f k8s/dev/")
+                        // echo 'To access your environment run `kubectl proxy`'
+                        // echo "Then access your service via http://localhost:8001/api/v1/proxy/namespaces/${gitBranch}/services/${appName}:80/"
+                        sh("echo http://`kubectl --namespace=production get service/${appName} --output=json | jq -r '.status.loadBalancer.ingress[0].ip'`:${svcPort} > ${appName}")
+                }
+            }
         }
     }
 }
