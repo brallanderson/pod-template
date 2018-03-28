@@ -1,12 +1,3 @@
-/*
-This is an example pipeline that implement full CI/CD for a simple static web site packed in a Docker image.
-The pipeline is made up of 6 main steps
-1. Build image
-2. Test build
-3. Push image to registry
-4. Deploy application
-*/
-
 node {
 
     def myRepo = checkout scm
