@@ -1,6 +1,6 @@
 def label = "jenkins-agent-${UUID.randomUUID().toString()}"
 
-podTemplate(label: label, cloud: 'kubernetes-199222', containers: [
+podTemplate(label: label, cloud: 'kubernetes-199222', namespace:'jenkins', containers: [
     containerTemplate(name: 'docker', image: 'docker', command: 'cat', ttyEnabled: true),
     containerTemplate(name: 'kubectl', image: 'raphaelfp/jnlp-slave:lts', command: 'cat', ttyEnabled: true)
 ],
@@ -43,7 +43,7 @@ volumes: [
         }
 
         stage('Deploy application') {
-            container('docker') {
+            container('kubectl') {
                 echo "Deploying application"
                 switch (gitBranch) {
                     case "staging":
