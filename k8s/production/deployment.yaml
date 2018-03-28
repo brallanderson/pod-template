@@ -1,9 +1,9 @@
 apiVersion: extensions/v1beta1
 kind: Deployment
 metadata:
-  name: nodetest-production
+  name: pod-template
   labels:
-    app: nodetest
+    app: pod-template
 spec:
   replicas: 2
   strategy:
@@ -11,13 +11,13 @@ spec:
   template:
     metadata:
       labels:
-        app: nodetest
+        app: pod-template
         tier: backend
         env: production
     spec:
       containers:
-      - name: nodetest
-        image: raphaelfp/nodetest
+      - name: pod-template
+        image: raphaelfp/pod-template
         imagePullPolicy: Always
         ports:
         - containerPort: 3000
