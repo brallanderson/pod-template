@@ -1,6 +1,7 @@
 const assert = require('assert');
 const expect = require('chai').expect;
 const mongoose = require('mongoose');
+const uuidv4 = require('uuid/v4');
 require('mongoose').connect(
   'mongodb://test:123456@ds127129.mlab.com:27129/auth-test'
 );
@@ -11,12 +12,13 @@ const User = mongoose.model('user');
 describe('User', function() {
   const newUser = {
     id: null,
-    email: 'john@doe.com',
-    password: '123456'
+    email: `${uuidv4()}@doe.com`,
+    password: uuidv4()
   };
 
   it('Should insert a user', function(done) {
-    User(newUser).save((err, user) => {
+    setTimeout(done, 3000);
+    User(newUser).save(function(err, user) {
       expect(user).to.not.be.null;
       expect(user.email).to.be.equal(newUser.email);
       expect(user.password).to.not.be.null;
