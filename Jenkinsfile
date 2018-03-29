@@ -72,5 +72,9 @@ volumes: [
                 }
             }
         }
+
+        stage('Post build') {
+            step([$class: 'JUnitResultArchiver', testResults: 'test-report.xml'])
+        }
     }
 }

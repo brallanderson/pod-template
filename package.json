@@ -5,7 +5,7 @@
   "main": "src/index.js",
   "scripts": {
     "test":
-      "MOCHA_FILE=./jenkins-test-results.xml mocha src/**/*spec.js --exit --reporter mocha-junit-reporter",
+      "MOCHA_FILE=./test-report.xml mocha src/**/*spec.js --exit --reporter mocha-junit-reporter",
     "start": "node src/index.js",
     "dev":
       "JWT_SECRET=123456 MONGO_URI=mongodb://localhost:27017/auth PORT=3000 nodemon src/index.js"
