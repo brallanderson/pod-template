@@ -4,7 +4,7 @@
   "description": "Servidor de autenticação do DTI Labs",
   "main": "src/index.js",
   "scripts": {
-    "test": "MOCHA_FILE=./test-report.xml mocha",
+    "test": "mocha",
     "start": "node src/index.js",
     "dev":
       "JWT_SECRET=123456 MONGO_URI=mongodb://localhost:27017/auth PORT=3000 nodemon src/index.js"

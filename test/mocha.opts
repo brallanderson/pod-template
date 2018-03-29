@@ -1,3 +1,2 @@
 src/**/*spec.js
---reporter mocha-junit-reporter
 --exit
