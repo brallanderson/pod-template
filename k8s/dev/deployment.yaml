@@ -21,9 +21,15 @@ spec:
         imagePullPolicy: Always
         env:
         - name: JWT_SECRET
-          value: '36a7eccf-c209-4d8d-b982-b6485f1e0b55'
+          valueFrom:
+            secretKeyRef:
+              name: jwt
+              key: secret
         - name: MONGO_URI
-          value: 'mongodb://mongo:27017/auth'
+          valueFrom:
+            secretKeyRef:
+              name: mongo
+              key: uri
         - name: PORT
           value: '3000'
         ports:
