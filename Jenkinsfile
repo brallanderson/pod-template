@@ -17,31 +17,31 @@ volumes: [
         def appName = 'auth'
         def svcPort = 3000
         def imageName = "${project}/${appName}:${gitBranch}.${env.BUILD_NUMBER}"
+        def dockerImage
 
 
 
         stage('Build image') {
             container('docker') {
                 echo "Building docker image \"${imageName}\""
-                sh "docker build -t ${imageName} ."
+                dockerImage = docker.build("${imageName}", "-f .")
             }
         }
 
         stage('Test build') {
             container('docker') {
                 echo "Testing image \"${imageName}\""
-                sh """
-                    docker run --name ${appName} ${imageName} npm test
-                    docker cp ${appName}:/test-report.xml .
-                   """
+
+                dockerImage.inside('-v $WORKSPACE:/output -u root') {
+                    sh "npm test"
+                }
             }
         }
 
         stage('Push image to registry') {
             container('docker') {
                 echo "Testing image \"${imageName}\""
-                sh "docker login -u raphaelfp -p ${DOCKER_HUB_PASS}"
-                sh "docker push ${imageName}"
+                dockerImage.push()
             }
         }
 
