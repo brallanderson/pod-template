@@ -15,13 +15,16 @@ describe('User', function() {
     password: '123456'
   };
 
-  it('Should insert a user', async function() {
-    const user = await new User(newUser).save();
+  it('Should insert a user', function(done) {
+    User(newUser).save((err, user) => {
+      expect(user).to.not.be.null;
+      expect(user.email).to.be.equal(newUser.email);
+      expect(user.password).to.not.be.null;
+      newUser.id = user._id;
+      console.log(newUser.id);
 
-    expect(user).to.not.be.null;
-    expect(user.email).to.be.equal(newUser.email);
-    expect(user.password).to.be.equal(newUser.password);
-    newUser.id = user._id;
+      err ? done(err) : done();
+    });
   });
 
   it('Should delete a user', function(done) {
