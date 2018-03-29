@@ -14,7 +14,7 @@ volumes: [
         def gitBranch = myRepo.GIT_BRANCH.replace("origin/","")
 
         def project = 'raphaelfp'
-        def appName = 'pod-template'
+        def appName = 'auth'
         def svcPort = 3000
         def imageName = "${project}/${appName}:${gitBranch}.${env.BUILD_NUMBER}"
 

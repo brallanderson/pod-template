@@ -1,24 +1,31 @@
 apiVersion: extensions/v1beta1
 kind: Deployment
 metadata:
-  name: pod-template-stage
+  name: auth-stage
   labels:
-    app: pod-template
+    app: auth
 spec:
-  replicas: 2
+  replicas: 1
   strategy:
     type: RollingUpdate
   template:
     metadata:
       labels:
-        app: pod-template
+        app: auth
         tier: backend
         env: production
     spec:
       containers:
-      - name: pod-template
-        image: raphaelfp/pod-template
+      - name: auth
+        image: raphaelfp/auth
         imagePullPolicy: Always
+        env:
+        - name: JWT_SECRET
+          value: <JWT_SECRET>
+        - name: MONGO_URI
+          value: mongodb://mongo:27017/auth
+        - name: PORT
+          value: 3000
         ports:
         - containerPort: 3000
           protocol: TCP
