@@ -30,7 +30,10 @@ volumes: [
         stage('Test build') {
             container('docker') {
                 echo "Testing image \"${imageName}\""
-                sh "docker run ${imageName} npm test"
+                sh """
+                    docker run --name ${appName} ${imageName} npm test
+                    docker cp ${appName}:/test-report.xml .
+                   """
             }
         }
 
