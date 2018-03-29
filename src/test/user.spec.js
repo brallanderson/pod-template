@@ -1,11 +1,10 @@
 const assert = require('assert');
 const expect = require('chai').expect;
 const mongoose = require('mongoose');
-require('dotenv').config();
 require('mongoose').connect(
   'mongodb://test:123456@ds127129.mlab.com:27129/auth-test'
 );
-require('./user');
+require('../models/user');
 
 const User = mongoose.model('user');
 
