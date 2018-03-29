@@ -74,6 +74,7 @@ volumes: [
         }
 
         stage('Post build') {
+            sh("ls")
             step([$class: 'JUnitResultArchiver', testResults: 'test-report.xml'])
         }
     }
