@@ -24,7 +24,8 @@ volumes: [
         stage('Build image') {
             container('docker') {
                 echo "Building docker image \"${imageName}\""
-                dockerImage = docker.build("${imageName}", ".")
+                sh "docker build -t ${imageName}  ."
+                dockerImage = docker.image(imageName)
             }
         }
 
