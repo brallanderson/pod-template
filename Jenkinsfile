@@ -37,7 +37,7 @@ volumes: [
         stage('Push image to registry') {
             container('docker') {
                 echo "Testing image \"${imageName}\""
-                sh "docker login -u raphaelfp -p ${DOCKER_HUB_PASS}"
+                sh "${DOCKER_HUB_PASS} | docker login -u raphaelfp --password-stdin"
                 sh "docker push ${imageName}"
             }
         }
