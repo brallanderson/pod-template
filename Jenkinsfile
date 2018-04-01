@@ -58,16 +58,13 @@ volumes: [
                         sh("kubectl --namespace=production apply -f k8s/services/")
                         sh("kubectl --namespace=production apply -f k8s/production/")
                         sh("echo http://`kubectl --namespace=production get service/${appName} --output=json | jq -r '.status.loadBalancer.ingress[0].ip'`:${svcPort} > ${appName}")
+                        sh("git tag -a ${env.BUILD_NUMBER} -m \"Build ${project}/${appName}:${gitBranch}.${env.BUILD_NUMBER}\"")
                         break
 
                     default:
-                        sh("kubectl get ns ${gitBranch} || kubectl create ns ${gitBranch}")
-                        // Don't use public load balancing for development branches
-                        sh("sed -i.bak 's#${project}/${appName}#${imageName}#' k8s/dev/*.yaml")
-                        sh("kubectl --namespace=${gitBranch} apply -f k8s/services/")
-                        sh("kubectl --namespace=${gitBranch} apply -f k8s/dev/")
-                        // echo 'To access your environment run `kubectl proxy`'
-                        // echo "Then access your service via http://localhost:8001/api/v1/proxy/namespaces/${gitBranch}/services/${appName}:80/"
+                        sh("sed -i.bak 's#${project}/${appName}#${imageName}#' k8s/staging/*.yaml")
+                        sh("kubectl --namespace=staging apply -f k8s/services/")
+                        sh("kubectl --namespace=staging apply -f k8s/staging/")
                         sh("echo http://`kubectl --namespace=production get service/${appName} --output=json | jq -r '.status.loadBalancer.ingress[0].ip'`:${svcPort} > ${appName}")
                 }
             }
