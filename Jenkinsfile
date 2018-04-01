@@ -58,7 +58,10 @@ volumes: [
                         sh("kubectl --namespace=production apply -f k8s/services/")
                         sh("kubectl --namespace=production apply -f k8s/production/")
                         sh("echo http://`kubectl --namespace=production get service/${appName} --output=json | jq -r '.status.loadBalancer.ingress[0].ip'`:${svcPort} > ${appName}")
-                        sh("git tag -a ${env.BUILD_NUMBER} -m \"Build ${project}/${appName}:${gitBranch}.${env.BUILD_NUMBER}\"")
+                        withCredentials([usernamePassword(credentialsId: 'raphaelfp')]) {
+                            sh("git tag -a ${env.BUILD_NUMBER} -m \"Build ${project}/${appName}:${gitBranch}.${env.BUILD_NUMBER}\"")
+                            sh('git push --tags')
+                        }
                         break
 
                     default:
