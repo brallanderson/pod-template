@@ -4,7 +4,7 @@ Uma configuração de fluxo de CI/CD com Jenkins e Kubernetes.
 
 ## Considerações
 
-Estou utilizando um cluster no Kubernetes Engine do Google Cloud Plataform. Optei pelo Google pois ele não cobra pelo gerenciamento do Kubernetes, apenas os nós utilizados, assim como a Azure, além de oferecer 300 dólares para utilizar por um ano (~ R$990,00). Porém, a única coisa que deve diferir entre as plataformas são os passos de autenticação.
+Estou utilizando um cluster no Kubernetes Engine do Google Cloud Plataform e Github. Optei pelo Google pois ele não cobra pelo gerenciamento do Kubernetes, apenas os nós utilizados, assim como a Azure, além de oferecer 300 dólares para utilizar por um ano (~ R$990,00). Porém, a única coisa que deve diferir entre as plataformas são os passos de autenticação.
 
 Uma das vantagens de utilizar Jenkins e Kubernetes é que os builds do projeto podem ser realizados em pods do Kubernetes, se comunicando por um tunel tcp, isso faz com que o fluxo de entrega contínua seja escalável e gerenciado pelo Kubernetes.
 
