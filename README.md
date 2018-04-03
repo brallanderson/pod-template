@@ -268,3 +268,12 @@ Settings -> Integrations & services -> Add service -> Jenkins (Git plugin):
 ### Teste
 
 Publique um commit para o repositório, monitore os pods sendo criados e reze para o <span style="color:yellow">&#x2600;</span> (solzinho) aparecer no Jenkins <span style="color:blue">👍</span>.
+
+![Config system](img/12.png)
+![Config system](img/13.png)
+
+Pipeline finalizado sem erros.
+![Config system](img/14.png)
+
+Pod com a aplicação no namespace production.
+![Config system](img/15.png)
