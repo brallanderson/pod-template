@@ -46,7 +46,7 @@ volumes: [
             container('kubectl') {
                 echo "Deploying application"
                 sh("kubectl get ns ${gitBranch} || kubectl create ns ${gitBranch}")
-                sh("sed -i.bak 's#${project}/${appName}#${imageName}#' k8s/production/")
+                sh("sed -i.bak 's#${project}/${appName}#${imageName}#' k8s/production/*.yaml")
                 sh("kubectl --namespace=${gitBranch} apply -f k8s/services/")
                 sh("kubectl --namespace=${gitBranch} apply -f k8s/production/")
                 sh("echo http://`kubectl --namespace=${gitBranch} get service/${appName} --output=json | jq -r '.status.loadBalancer.ingress[0].ip'`:${svcPort} > ${appName}")
