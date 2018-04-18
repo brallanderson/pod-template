@@ -45,29 +45,11 @@ volumes: [
         stage('Deploy application') {
             container('kubectl') {
                 echo "Deploying application"
-                switch (gitBranch) {
-                    case "staging":
-                        sh("sed -i.bak 's#${project}/${appName}#${imageName}#' k8s/staging/*.yaml")
-                        sh("kubectl --namespace=staging apply -f k8s/services/")
-                        sh("kubectl --namespace=staging apply -f k8s/staging/")
-                        sh("echo http://`kubectl --namespace=production get service/${appName} --output=json | jq -r '.status.loadBalancer.ingress[0].ip'`:${svcPort} > ${appName}")
-                        break
-
-                    case "master":
-                        sh("sed -i.bak 's#${project}/${appName}#${imageName}#' k8s/production/*.yaml")
-                        sh("kubectl --namespace=production apply -f k8s/services/")
-                        sh("kubectl --namespace=production apply -f k8s/production/")
-                        sh("echo http://`kubectl --namespace=production get service/${appName} --output=json | jq -r '.status.loadBalancer.ingress[0].ip'`:${svcPort} > ${appName}")
-                        break
-
-                    default:
-                        sh("kubectl get ns ${gitBranch} || kubectl create ns ${gitBranch}")
-                        sh("sed -i.bak 's#${project}/${appName}#${imageName}#' k8s/dev/")
-                        sh("kubectl --namespace=${gitBranch} apply -f k8s/services/")
-                        sh("kubectl --namespace=${gitBranch} apply -f k8s/dev/")
-                        sh("echo http://`kubectl --namespace=${gitBranch} get service/${appName} --output=json | jq -r '.status.loadBalancer.ingress[0].ip'`:${svcPort} > ${appName}")
-                }
-            }
+                sh("kubectl get ns ${gitBranch} || kubectl create ns ${gitBranch}")
+                sh("sed -i.bak 's#${project}/${appName}#${imageName}#' k8s/production/")
+                sh("kubectl --namespace=${gitBranch} apply -f k8s/services/")
+                sh("kubectl --namespace=${gitBranch} apply -f k8s/production/")
+                sh("echo http://`kubectl --namespace=${gitBranch} get service/${appName} --output=json | jq -r '.status.loadBalancer.ingress[0].ip'`:${svcPort} > ${appName}")
         }
     }
 }
