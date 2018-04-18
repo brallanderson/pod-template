@@ -18,8 +18,6 @@ volumes: [
         def svcPort = 3000
         def imageName = "${project}/${appName}:${gitBranch}.${env.BUILD_NUMBER}"
 
-
-
         stage('Build image') {
             container('docker') {
                 echo "Building docker image \"${imageName}\""
