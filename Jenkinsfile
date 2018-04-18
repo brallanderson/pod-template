@@ -50,6 +50,7 @@ volumes: [
                 sh("kubectl --namespace=${gitBranch} apply -f k8s/services/")
                 sh("kubectl --namespace=${gitBranch} apply -f k8s/production/")
                 sh("echo http://`kubectl --namespace=${gitBranch} get service/${appName} --output=json | jq -r '.status.loadBalancer.ingress[0].ip'`:${svcPort} > ${appName}")
+            }
         }
     }
 }
