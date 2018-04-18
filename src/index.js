@@ -19,5 +19,5 @@ app.use(bodyParser.json({ type: '*/*' }));
 router(app);
 
 app.listen(process.env.PORT, () => {
-  console.log(`Servidor escutando a porta ${process.env.PORT}`);
+  console.log(`Listening on port ${process.env.PORT}`);
 });
